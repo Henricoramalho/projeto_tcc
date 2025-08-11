@@ -1,8 +1,22 @@
 const express = require('express');
 const routes = express.Router();
+const axios = require("axios");
 
 // Importe o middleware de autenticação
 const { autenticar, autorizar } = require('./controllers/authMiddleware');
+routes.get("/buscar-livros/:query", async (req, res) => {
+  const query = req.params.query;
+  const API_KEY = process.env.GOOGLE_BOOKS_KEY;
+   try {
+    const response = await axios.get(
+      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&key=${API_KEY}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Erro ao buscar no Google Books:", error);
+    res.status(500).json({ error: "Erro ao buscar livros" });
+  }
+});
 
 // Rota raiz (teste)
 routes.get('/', (req, res) => {

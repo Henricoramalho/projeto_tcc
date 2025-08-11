@@ -31,3 +31,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Carrega os livros ao carregar a página
     loadBooks();
 });
+
+async function carregarLivrosGoogle(query) {
+  try {
+    const res = await fetch(`/buscar-livros/${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    const container = document.getElementById("books-container");
+    container.innerHTML = "";
+
+    if (!data.items) {
+      container.innerHTML = "<p>Nenhum livro encontrado.</p>";
+      return;
+    }
+
+    data.items.forEach(book => {
+      const info = book.volumeInfo;
+      const card = document.createElement("div");
+      card.classList.add("book-card");
+
+      card.innerHTML = `
+        <img src="${info.imageLinks?.thumbnail || 'default.jpg'}" alt="${info.title}">
+        <h3>${info.title}</h3>
+        <p>${info.authors ? info.authors.join(", ") : "Autor desconhecido"}</p>
+      `;
+      container.appendChild(card);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar livros:", error);
+  }
+}
+
+// Chama a função ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  carregarLivrosGoogle("harry potter");
+});
